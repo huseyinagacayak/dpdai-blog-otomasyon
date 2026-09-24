@@ -1,11 +1,30 @@
 import { execFile } from 'node:child_process';
-import { mkdir, readdir, stat, unlink } from 'node:fs/promises';
+import { copyFile, mkdir, readdir, stat, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { prisma } from './db';
 import { notify } from './notify';
 
 const run = promisify(execFile);
+
+const RESTORE_NOTE = `DPDAI - Veritabani yedegi / geri yukleme
+
+Bu klasordeki .dump dosyalari Postgres "custom format" yedekleridir.
+
+GERI YUKLEME (Docker):
+  docker compose cp <dosya>.dump postgres:/tmp/yedek.dump
+  docker compose exec postgres pg_restore --clean --if-exists --no-owner \\
+    -U dpdai -d dpdai /tmp/yedek.dump
+
+GERI YUKLEME (yerel, DATABASE_URL ile):
+  npm run restore -- storage/backups/<dosya>.dump
+
+!!! COK ONEMLI - ENCRYPTION_KEY !!!
+Site sifreleri ve API anahtarlari veritabaninda ENCRYPTION_KEY ile sifrelidir.
+Bu yedek TEK BASINA yeterli DEGILDIR: .env icindeki ENCRYPTION_KEY'i AYRI ve
+guvenli bir yerde (parola yoneticisi) saklayin. Anahtar kaybolursa yedek geri
+yuklense bile kayitli sifreler cozulEMEZ ve hepsini yeniden girmeniz gerekir.
+`;
 
 /**
  * Otomatik Postgres yedegi (pg_dump).
@@ -32,6 +51,9 @@ export type BackupConfig = {
   keep: number;
   dir: string;
   pgDump: string;
+  pgRestore: string;
+  /** Ayarliysa her yedek buraya da kopyalanir (off-site: ag surucusu, mount vb.) */
+  copyDir: string | null;
 };
 
 export function backupConfig(): BackupConfig {
@@ -41,6 +63,8 @@ export function backupConfig(): BackupConfig {
     keep: Math.max(1, Number(process.env.BACKUP_KEEP ?? 14) || 14),
     dir: process.env.BACKUP_DIR || path.join(STORAGE_DIR, 'backups'),
     pgDump: process.env.PG_DUMP_PATH || 'pg_dump',
+    pgRestore: process.env.PG_RESTORE_PATH || 'pg_restore',
+    copyDir: process.env.BACKUP_COPY_DIR || null,
   };
 }
 
@@ -187,6 +211,26 @@ export async function runBackup(
     const { size } = await stat(target);
     const pruned = await prune(cfg.dir, cfg.keep);
 
+    // Off-site kopya (ayarliysa): yedek ikinci bir yere de yazilir
+    if (cfg.copyDir) {
+      try {
+        await mkdir(cfg.copyDir, { recursive: true });
+        await copyFile(target, path.join(cfg.copyDir, filename));
+      } catch (e) {
+        // Kopya basarisiz olsa da asil yedek durmasin; sadece uyar
+        await notify({
+          level: 'warn',
+          title: 'Yedek off-site kopyalanamadı',
+          message: `${cfg.copyDir}: ${(e as Error).message.slice(0, 200)}`,
+          path: '/ayarlar',
+          dedupeKey: 'backup-copy-failed',
+        }).catch(() => undefined);
+      }
+    }
+
+    // Geri yukleme + anahtar guvenligi hatirlaticisi (her seferinde tazelenir)
+    await writeFile(path.join(cfg.dir, 'OKU-RESTORE.txt'), RESTORE_NOTE, 'utf8').catch(() => undefined);
+
     const status: BackupStatus = {
       at: new Date().toISOString(),
       ok: true,
@@ -218,5 +262,54 @@ export async function runBackup(
     });
 
     throw e;
+  }
+}
+
+/**
+ * Bir yedegi geri yukler (pg_restore). Mevcut veriyi TEMIZLEYIP yeniden kurar
+ * (--clean --if-exists). Dikkat: bu islem mevcut veritabaninin uzerine yazar.
+ * pg_restore ikilisi sunucudan >= surumde olmali (Docker imajinda kurulu).
+ */
+export async function restoreBackup(file: string): Promise<void> {
+  const cfg = backupConfig();
+  const pg = pgParams();
+  const abs = path.isAbsolute(file) ? file : path.resolve(file);
+  await stat(abs); // dosya var mi
+
+  const args = [
+    '-h', pg.host,
+    '-p', pg.port,
+    '-U', pg.user,
+    '-d', pg.db,
+    '--clean',
+    '--if-exists',
+    '--no-owner',
+    '--no-privileges',
+    abs,
+  ];
+
+  try {
+    await run(cfg.pgRestore, args, {
+      timeout: 15 * 60 * 1000,
+      maxBuffer: 8 * 1024 * 1024,
+      env: {
+        ...process.env,
+        PGPASSWORD: pg.password,
+        ...(pg.sslmode ? { PGSSLMODE: pg.sslmode } : {}),
+      },
+    });
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException & { stderr?: string };
+    if (err.code === 'ENOENT') {
+      throw new Error(
+        `pg_restore bulunamadı ("${cfg.pgRestore}"). postgresql-client kurun ya da ` +
+          `PG_RESTORE_PATH ile tam yolu verin.`,
+      );
+    }
+    // pg_restore uyari verse de (ornek: yok olan nesneyi drop) tamamen basarisiz sayma
+    const detay = (err.stderr || err.message || '').toString().trim();
+    if (/error:/i.test(detay) && !/does not exist/i.test(detay)) {
+      throw new Error(`pg_restore başarısız: ${detay.slice(0, 400)}`);
+    }
   }
 }

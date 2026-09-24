@@ -11,7 +11,10 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --import ./tests/setup.ts --test tests/*.test.ts",
+    "backup": "tsx scripts/backup.ts",
+    "restore": "tsx scripts/restore.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.123.0",

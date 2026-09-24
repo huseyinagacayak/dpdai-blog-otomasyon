@@ -6,9 +6,11 @@ import { getPublishAdapter } from '@/lib/providers/publish';
 import {
   completeMissingTranslations,
   getTranslationProgress,
+  getXlateAvgCost,
   translateMenus,
 } from '@/lib/actions/translations';
 import { SubmitButton } from '@/components/SubmitButton';
+import { ConfirmButton } from '@/components/ConfirmButton';
 import { TranslationProgress } from '@/components/TranslationProgress';
 
 export const dynamic = 'force-dynamic';
@@ -59,6 +61,11 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
   const tamamla = completeMissingTranslations.bind(null, site.id);
   const menuCevir = translateMenus.bind(null, site.id);
   const progress = await getTranslationProgress(site.id);
+
+  // Toplu ceviri maliyet tahmini (onay ekrani icin)
+  const missingCount = (audit?.items ?? []).reduce((n, it) => n + (it.missing?.length ?? 0), 0);
+  const avgCost = missingCount > 0 ? await getXlateAvgCost(site.id) : 0;
+  const estUsd = (missingCount * avgCost).toFixed(2);
 
   return (
     <>
@@ -137,7 +144,11 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
 
             <div className="mt-5 flex flex-wrap items-start gap-3">
               <form action={tamamla}>
-                <SubmitButton pendingText="Kuyruğa alınıyor…">Eksik çevirileri tamamla</SubmitButton>
+                <ConfirmButton
+                  confirmText={`${missingCount} çeviri (~$${estUsd}) kuyruğa alınacak.`}
+                >
+                  Eksik çevirileri tamamla
+                </ConfirmButton>
               </form>
               <form action={menuCevir}>
                 <SubmitButton className="btn" pendingText="Menüler çevriliyor…">

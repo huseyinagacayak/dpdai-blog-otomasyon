@@ -231,6 +231,20 @@ async function handle(job: Job<JobData>): Promise<unknown> {
 async function main() {
   const queue = getQueue();
 
+  // Zombi kayit temizligi: onceki worker aniden kapandiysa (reboot/kill) "RUNNING"
+  // kalmis JobRun'lari kapat. Boylece istatistik/kayitlar sahte "isleniyor" gostermez.
+  const zombie = await prisma.jobRun
+    .updateMany({
+      where: { status: 'RUNNING', startedAt: { lt: new Date(Date.now() - 30 * 60 * 1000) } },
+      data: {
+        status: 'FAILED',
+        message: 'Worker yeniden başladı; yarım kalan iş kaydı kapatıldı.',
+        finishedAt: new Date(),
+      },
+    })
+    .catch(() => ({ count: 0 }));
+  if (zombie.count) log(`${zombie.count} zombi iş kaydı temizlendi.`);
+
   // Eski tek anahtarli ayarlar varsa API havuzuna bir kez tasi
   const tasinan = await seedCredentialsFromLegacy().catch(() => 0);
   if (tasinan) log(`API havuzuna ${tasinan} sağlayıcı taşındı.`);

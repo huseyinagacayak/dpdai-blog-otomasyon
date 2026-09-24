@@ -35,7 +35,8 @@ export function fixAcronyms(text: string): string {
     const fixed = parts.map((p) => {
       if (ACRONYMS.has(p.toLocaleLowerCase('tr-TR'))) {
         changed = true;
-        return p.toLocaleUpperCase('tr-TR');
+        // Kisaltmalar Latin: 'i' -> 'I' (Turkce 'İ' degil). API/IP/PCI dogru cikar.
+        return p.toUpperCase();
       }
       return p;
     });

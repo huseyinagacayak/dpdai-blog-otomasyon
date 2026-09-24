@@ -109,6 +109,25 @@ export async function translateMenus(siteId: string): Promise<void> {
   revalidatePath(`/siteler/${siteId}/ceviri`);
 }
 
+/** Bir cevirinin yaklasik maliyeti (gecmis JobRun'lardan; toplu onay ekrani icin). */
+export async function getXlateAvgCost(siteId: string): Promise<number> {
+  const rows = await prisma.jobRun.findMany({
+    where: {
+      siteId,
+      kind: 'translate',
+      step: { contains: '→' },
+      status: 'SUCCESS',
+      costUsd: { gt: 0 },
+    },
+    select: { costUsd: true },
+    take: 50,
+    orderBy: { startedAt: 'desc' },
+  });
+  if (!rows.length) return 0.03; // gecmis yoksa kaba varsayilan
+  const avg = rows.reduce((s, r) => s + r.costUsd, 0) / rows.length;
+  return avg * 1.4; // SEO + yayin adimlarinin payi
+}
+
 /** Ceviri ilerlemesi: toplam kuyruga atilan, tamamlanan, kalan. */
 export async function getTranslationProgress(
   siteId: string,
