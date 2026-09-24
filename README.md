@@ -1,5 +1,7 @@
 # DPDAI Blog Otomasyon
 
+**Türkçe** · [English](README.en.md)
+
 Çok siteli, çok dilli, SEO uyumlu blog üretim ve yayın paneli.
 Konu başlıklarını girersiniz; sistem takvime göre metni yazar, kendi kendini denetleyip
 düzeltir, görseli üretip kalitesini kontrol eder, çevirir ve WordPress'e gönderir.
