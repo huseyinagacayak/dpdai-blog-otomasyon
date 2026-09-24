@@ -157,11 +157,43 @@ export async function publishArticle(
       },
     });
 
+    // IndexNow: yayin/guncelleme sonrasi arama motorlarina aninda bildir.
+    // Ates-et-unut; basarisiz olsa da yayin akisini etkilemez.
+    if (res.status === 'publish' && res.url) {
+      void pingIndexNow(site, res.url);
+    }
+
     return {
       result: { url: res.url, warnings: res.warnings },
       message: `${res.status} · ${res.url}`,
     };
   });
+}
+
+/** IndexNow ping — bridge'in urettigi anahtar site.capabilities'te taşınır. */
+async function pingIndexNow(
+  site: { url: string; capabilities: unknown },
+  url: string,
+): Promise<void> {
+  try {
+    const caps = (site.capabilities ?? {}) as { indexnow_key?: string };
+    const key = caps.indexnow_key;
+    if (!key) return;
+    const base = site.url.replace(/\/+$/, '');
+    const host = new URL(base).host;
+    await fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        host,
+        key,
+        keyLocation: `${base}/${key}.txt`,
+        urlList: [url],
+      }),
+    });
+  } catch {
+    /* IndexNow best-effort; sessizce gec */
+  }
 }
 
 function decideStatus(

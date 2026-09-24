@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DPDAI Bridge
  * Description: Blog otomasyon paneli ile WordPress arasinda kopru. SEO metalari, Polylang/WPML dil baglantisi ve tekrarsiz (idempotent) yazi yayini saglar.
- * Version:     1.5.0
+ * Version:     1.6.0
  * Author:      DPDAI
  * License:     GPL-2.0-or-later
  * Text Domain: dpdai-bridge
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'DPDAI_BRIDGE_VERSION', '1.5.0' );
+define( 'DPDAI_BRIDGE_VERSION', '1.6.0' );
 define( 'DPDAI_TOKEN_OPTION', 'dpdai_bridge_token' );
 define( 'DPDAI_EXTERNAL_ID_META', '_dpdai_external_id' );
 
@@ -21,6 +21,7 @@ define( 'DPDAI_PLUGIN_FILE', __FILE__ );
 require_once __DIR__ . '/includes/seo-audit.php';
 require_once __DIR__ . '/includes/translation-audit.php';
 require_once __DIR__ . '/includes/menus.php';
+require_once __DIR__ . '/includes/indexnow.php';
 require_once __DIR__ . '/includes/updater.php';
 
 /* -------------------------------------------------------------------------
@@ -158,10 +159,11 @@ function dpdai_route_info() {
 			'version'    => DPDAI_BRIDGE_VERSION,
 			'wp_version' => $wp_version,
 			'site_url'   => get_site_url(),
-			'seo_plugin' => dpdai_detect_seo_plugin(),
-			'i18n'       => dpdai_detect_i18n(),
-			'categories' => $categories,
-			'authors'    => $authors,
+			'seo_plugin'   => dpdai_detect_seo_plugin(),
+			'i18n'         => dpdai_detect_i18n(),
+			'indexnow_key' => dpdai_indexnow_key(),
+			'categories'   => $categories,
+			'authors'      => $authors,
 		)
 	);
 }

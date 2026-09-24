@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 import { prisma } from '@/lib/db';
@@ -169,8 +169,13 @@ export async function generateFeaturedImage(articleId: string): Promise<void> {
       // renkli zemin + yan panelde foto + uzerinde BLOG BASLIGI. Boylece gorsel
       // her zaman konuyla alakalidir ve tum yazilarda tutarli durur.
       // FEATURED_COMPOSE=0 ile kapatilip ham foto kullanilabilir.
+      const dir = path.join(STORAGE_DIR, 'images', article.siteId);
+      await mkdir(dir, { recursive: true });
+      const baseName = `${article.slug || article.id}-${article.locale}`;
+
       let finalBuffer = best.buffer;
       let finalMeta = best.meta;
+      let srcPath: string | null = null;
       if ((process.env.FEATURED_COMPOSE ?? '1') !== '0') {
         try {
           finalBuffer = await composeCover({
@@ -179,15 +184,18 @@ export async function generateFeaturedImage(articleId: string): Promise<void> {
             siteName: site.name,
           });
           finalMeta = await sharp(finalBuffer).metadata();
+          // HAM fotoyu ayri sakla: baslik degisince kapak, yeniden URETMEDEN
+          // bu kaynaktan tekrar olusturulabilir (recomposeFeatured).
+          const srcFile = path.join(dir, `${baseName}-src.webp`);
+          await writeFile(srcFile, best.buffer);
+          srcPath = path.relative(STORAGE_DIR, srcFile).split(path.sep).join('/');
         } catch (e) {
           // Kapak olusturulamazsa ham foto ile devam et
           log.push(`kapak olusturulamadi: ${(e as Error).message}`);
         }
       }
 
-      const dir = path.join(STORAGE_DIR, 'images', article.siteId);
-      await mkdir(dir, { recursive: true });
-      const filename = `${article.slug || article.id}-${article.locale}.webp`;
+      const filename = `${baseName}.webp`;
       const filePath = path.join(dir, filename);
       await writeFile(filePath, finalBuffer);
 
@@ -211,6 +219,7 @@ export async function generateFeaturedImage(articleId: string): Promise<void> {
           checks: {
             technical: best.tech,
             vision: best.vision,
+            srcPath, // ham fotonun yolu (kapagi yeniden olusturmak icin)
             log,
           } as unknown as object,
           costUsd: totalCost,
@@ -250,4 +259,45 @@ function candidateScore(c: {
   if (c.vision && !c.vision.relevant) s -= 35;
   s -= (c.vision?.artifacts.length ?? 0) * 5;
   return s;
+}
+
+/**
+ * Kapagi YENIDEN URETMEDEN, saklanan ham fotodan yeniden olusturur (ucretsiz).
+ * Baslik degistiginde ya da marka rengi guncellendiginde kullanilir.
+ * Ham foto yoksa (eski kayit) false doner; o zaman gorseli yeniden uretmek gerekir.
+ */
+export async function recomposeFeatured(articleId: string): Promise<boolean> {
+  const article = await prisma.article.findUniqueOrThrow({
+    where: { id: articleId },
+    include: { site: true, media: { where: { role: 'FEATURED' } } },
+  });
+  const featured = article.media[0];
+  if (!featured?.localPath) return false;
+
+  const checks = (featured.checks ?? {}) as { srcPath?: string };
+  if (!checks.srcPath) return false;
+
+  const photo = await readFile(path.join(STORAGE_DIR, checks.srcPath)).catch(() => null);
+  if (!photo) return false;
+
+  const cover = await composeCover({
+    photo,
+    title: article.title,
+    siteName: article.site.name,
+  });
+  const meta = await sharp(cover).metadata();
+  await writeFile(path.join(STORAGE_DIR, featured.localPath), cover);
+
+  await prisma.mediaAsset.update({
+    where: { id: featured.id },
+    data: {
+      width: meta.width ?? null,
+      height: meta.height ?? null,
+      bytes: cover.byteLength,
+      // WP'de guncellensin diye yeniden yuklemeye zorla
+      remoteMediaId: null,
+      remoteUrl: null,
+    },
+  });
+  return true;
 }

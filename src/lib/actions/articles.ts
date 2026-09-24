@@ -128,6 +128,21 @@ export async function regenerateImage(id: string) {
   revalidatePath(`/yazilar/${id}`);
 }
 
+/**
+ * Kapagi UCRETSIZ yeniler: saklanan ham fotodan yeniden olusturur (yeni gorsel
+ * uretmez). Ham foto yoksa (eski kayit) tam yeniden uretime duser.
+ */
+export async function recomposeCover(id: string) {
+  await requireSession();
+  const { recomposeFeatured } = await import('@/lib/pipeline/image');
+  const ok = await recomposeFeatured(id).catch(() => false);
+  if (!ok) {
+    await prisma.article.update({ where: { id }, data: { status: 'IMAGING', lastError: null } });
+    await requeue({ type: 'image', articleId: id });
+  }
+  revalidatePath(`/yazilar/${id}`);
+}
+
 /** Basarisiz isi tekrar dene. */
 export async function retryArticle(id: string) {
   await requireSession();

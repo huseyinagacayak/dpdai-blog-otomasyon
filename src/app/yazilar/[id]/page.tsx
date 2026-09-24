@@ -28,6 +28,7 @@ import {
   forcePublish,
   regenerateArticle,
   regenerateImage,
+  recomposeCover,
   rerunInterlink,
   rerunQuality,
   retryArticle,
@@ -102,6 +103,7 @@ export default async function YaziDetayPage({ params }: { params: Promise<{ id: 
   const yenidenUret = regenerateArticle.bind(null, article.id);
   const kaliteTekrar = rerunQuality.bind(null, article.id);
   const gorselYenile = regenerateImage.bind(null, article.id);
+  const kapakYenile = recomposeCover.bind(null, article.id);
   const linkYenile = rerunInterlink.bind(null, article.id);
   const tekrarDene = retryArticle.bind(null, article.id);
   const sil = deleteArticle.bind(null, article.id);
@@ -195,6 +197,12 @@ export default async function YaziDetayPage({ params }: { params: Promise<{ id: 
           <button className="btn">
             <IconImage />
             Görseli yenile
+          </button>
+        </form>
+        <form action={kapakYenile}>
+          <button className="btn" title="Yeni görsel üretmeden, saklanan fotodan kapağı yeniden oluşturur">
+            <IconImage />
+            Kapağı yenile (ücretsiz)
           </button>
         </form>
         <form action={linkYenile}>
