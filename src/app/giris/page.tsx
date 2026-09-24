@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createSession, getSession, verifyPassword } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 
 export default async function GirisPage({
   searchParams,
@@ -9,6 +11,7 @@ export default async function GirisPage({
 }) {
   const params = await searchParams;
   if (await getSession()) redirect(params.devam || '/');
+  const l = await getLocale();
 
   async function girisYap(formData: FormData) {
     'use server';
@@ -39,7 +42,7 @@ export default async function GirisPage({
           <div>
             <div className="text-base font-semibold">DPDAI</div>
             <div className="text-xs" style={{ color: 'var(--ink-3)' }}>
-              Blog Otomasyon Paneli
+              {t(l, 'Blog Otomasyon Paneli')}
             </div>
           </div>
         </div>
@@ -54,20 +57,20 @@ export default async function GirisPage({
                 border: '1px solid var(--err-line)',
               }}
             >
-              E-posta veya şifre hatalı.
+              {t(l, 'E-posta veya şifre hatalı.')}
             </div>
           )}
 
           <input type="hidden" name="devam" value={params.devam ?? '/'} />
 
-          <label className="label">E-posta</label>
+          <label className="label">{t(l, 'E-posta')}</label>
           <input name="email" type="email" required autoFocus className="input mb-4" />
 
-          <label className="label">Şifre</label>
+          <label className="label">{t(l, 'Şifre')}</label>
           <input name="password" type="password" required className="input mb-6" />
 
           <button type="submit" className="btn-primary w-full">
-            Giriş yap
+            {t(l, 'Giriş yap')}
           </button>
         </form>
       </div>

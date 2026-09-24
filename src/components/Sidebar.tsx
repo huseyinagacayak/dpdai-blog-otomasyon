@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
+import { LangToggle } from './LangToggle';
 import type { Theme } from '@/lib/theme';
+import { t, type Locale } from '@/lib/i18n';
 import {
   IconActivity,
   IconArticle,
@@ -30,10 +32,12 @@ export function Sidebar({
   email,
   pending,
   theme,
+  locale,
 }: {
   email: string;
   pending: number;
   theme: Theme;
+  locale: Locale;
 }) {
   const pathname = usePathname();
 
@@ -53,7 +57,7 @@ export function Sidebar({
           <span className="leading-tight">
             <span className="block text-sm font-semibold">DPDAI</span>
             <span className="block text-[11px]" style={{ color: 'var(--ink-3)' }}>
-              Blog Otomasyon
+              {t(locale, 'Blog Otomasyon')}
             </span>
           </span>
         </Link>
@@ -65,7 +69,7 @@ export function Sidebar({
           return (
             <Link key={href} href={href} className="nav-item" data-active={active}>
               <Icon className="size-[18px]" />
-              <span className="flex-1">{label}</span>
+              <span className="flex-1">{t(locale, label)}</span>
               {href === '/yazilar' && pending > 0 && (
                 <span
                   className="rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums"
@@ -80,14 +84,17 @@ export function Sidebar({
       </nav>
 
       <div className="px-3 pb-4" style={{ borderTop: '1px solid var(--line)' }}>
-        <div className="px-1 pt-4 pb-3">
-          <ThemeToggle current={theme} />
+        <div className="flex gap-2 px-1 pt-4 pb-3">
+          <div className="flex-1">
+            <ThemeToggle current={theme} />
+          </div>
+          <LangToggle current={locale} />
         </div>
         <div className="px-3 pb-2">
           <div className="truncate text-xs font-medium">{email}</div>
         </div>
         <form action="/api/auth/logout" method="post">
-          <button className="nav-item w-full text-left">Çıkış yap</button>
+          <button className="nav-item w-full text-left">{t(locale, 'Çıkış yap')}</button>
         </form>
       </div>
     </aside>
@@ -95,7 +102,7 @@ export function Sidebar({
 }
 
 /** Dar ekranlarda ust menu */
-export function MobileNav({ pending }: { pending: number }) {
+export function MobileNav({ pending, locale }: { pending: number; locale: Locale }) {
   const pathname = usePathname();
 
   return (
@@ -108,7 +115,7 @@ export function MobileNav({ pending }: { pending: number }) {
         return (
           <Link key={href} href={href} className="nav-item shrink-0" data-active={active}>
             <Icon className="size-4" />
-            <span className="text-xs">{label}</span>
+            <span className="text-xs">{t(locale, label)}</span>
             {href === '/yazilar' && pending > 0 && (
               <span
                 className="rounded-full px-1.5 text-[10px] font-semibold tabular-nums"

@@ -16,10 +16,13 @@ import { IconAlert, IconCalendar, IconChart, IconRefresh, IconSparkle } from '@/
 import { replan } from '@/lib/actions/topics';
 import { getBudgetStatus } from '@/lib/budget';
 import { prisma } from '@/lib/db';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 
 export default async function OzetPage() {
+  const l = await getLocale();
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 3600_000);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -113,13 +116,13 @@ export default async function OzetPage() {
   return (
     <>
       <PageHeader
-        title="Özet"
-        subtitle={`${fmtDate(now)} · üretim hattı ve yayın takvimi`}
+        title={t(l, 'Özet')}
+        subtitle={`${fmtDate(now)} · ${t(l, 'üretim hattı ve yayın takvimi')}`}
         actions={
           <form action={planla}>
             <button className="btn">
               <IconRefresh />
-              Takvimi yeniden hesapla
+              {t(l, 'Takvimi yeniden hesapla')}
             </button>
           </form>
         }
@@ -128,21 +131,21 @@ export default async function OzetPage() {
       {/* ---------------------------------------------------------- ölçüler */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
         <Stat
-          label="İnceleme bekliyor"
+          label={t(l, 'İnceleme bekliyor')}
           value={needsReview}
           href="/yazilar?durum=NEEDS_REVIEW"
           tone={needsReview > 0 ? 'warn' : undefined}
         />
-        <Stat label="Son 7 günde yayında" value={publishedWeek} href="/yazilar?durum=PUBLISHED" />
-        <Stat label="Havuzdaki konu" value={topicPool} href="/konular" />
-        <Stat label="Aktif site" value={activeSites} href="/siteler" />
+        <Stat label={t(l, 'Son 7 günde yayında')} value={publishedWeek} href="/yazilar?durum=PUBLISHED" />
+        <Stat label={t(l, 'Havuzdaki konu')} value={topicPool} href="/konular" />
+        <Stat label={t(l, 'Aktif site')} value={activeSites} href="/siteler" />
         <Stat
-          label="Bu ay maliyet"
+          label={t(l, 'Bu ay maliyet')}
           value={fmtMoney(budget.spent)}
           hint={
             budget.limit > 0
-              ? `bütçe ${fmtMoney(budget.limit)} · %${Math.round(budget.ratio * 100)} kullanıldı`
-              : `${revised._sum.revisionCount ?? 0} otomatik düzeltme turu`
+              ? `${t(l, 'bütçe')} ${fmtMoney(budget.limit)} · %${Math.round(budget.ratio * 100)} ${t(l, 'kullanıldı')}`
+              : `${revised._sum.revisionCount ?? 0} ${t(l, 'otomatik düzeltme turu')}`
           }
           tone={budget.limit > 0 && !budget.allowed ? 'err' : budget.warning ? 'warn' : undefined}
           href="/kayitlar"
@@ -151,11 +154,11 @@ export default async function OzetPage() {
 
       {budget.limit > 0 && !budget.allowed && (
         <div className="mt-4">
-          <Alert tone="err" title="Aylık bütçe doldu">
-            Bu ay {fmtMoney(budget.spent)} / {fmtMoney(budget.limit)} harcandı. Yeni üretim
-            durduruldu; onaylı yazıların yayını sürüyor.{' '}
+          <Alert tone="err" title={t(l, 'Aylık bütçe doldu')}>
+            {t(l, 'Bu ay {x} harcandı. Yeni üretim durduruldu; onaylı yazıların yayını sürüyor.')
+              .replace('{x}', `${fmtMoney(budget.spent)} / ${fmtMoney(budget.limit)}`)}{' '}
             <Link href="/ayarlar" className="underline">
-              Bütçeyi ayarla
+              {t(l, 'Bütçeyi ayarla')}
             </Link>
           </Alert>
         </div>
@@ -163,53 +166,53 @@ export default async function OzetPage() {
 
       {budget.limit > 0 && budget.allowed && budget.warning && (
         <div className="mt-4">
-          <Alert tone="warn" title="Bütçenin sonuna yaklaşıldı">
-            Bu ay {fmtMoney(budget.spent)} / {fmtMoney(budget.limit)} harcandı (%
-            {Math.round(budget.ratio * 100)}).
+          <Alert tone="warn" title={t(l, 'Bütçenin sonuna yaklaşıldı')}>
+            {t(l, 'Bu ay {x} harcandı').replace('{x}', `${fmtMoney(budget.spent)} / ${fmtMoney(budget.limit)}`)}{' '}
+            (%{Math.round(budget.ratio * 100)}).
           </Alert>
         </div>
       )}
 
       {failed > 0 && (
         <div className="mt-4">
-          <Alert tone="err" title={`${failed} yazı hata durumunda`}>
+          <Alert tone="err" title={`${failed} ${t(l, 'yazı hata durumunda')}`}>
             <Link href="/yazilar?durum=FAILED" className="underline">
-              Hatalı yazıları görüntüle
+              {t(l, 'Hatalı yazıları görüntüle')}
             </Link>{' '}
-            — çoğu durumda &quot;Tekrar dene&quot; yeterli olur.
+            {t(l, '— çoğu durumda "Tekrar dene" yeterli olur.')}
           </Alert>
         </div>
       )}
 
       <div className="mt-5">
         <Panel
-          title="Son 14 gün"
+          title={t(l, 'Son 14 gün')}
           icon={<IconChart />}
           action={
             <Link href="/istatistik" className="text-xs hover:underline" style={{ color: 'var(--ink-3)' }}>
-              tüm istatistikler
+              {t(l, 'tüm istatistikler')}
             </Link>
           }
         >
-          <AreaChart data={akis} labels={['üretilen', 'yayınlanan']} height={150} />
+          <AreaChart data={akis} labels={[t(l, 'üretilen'), t(l, 'yayınlanan')]} height={150} />
         </Panel>
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_260px]">
         {/* ------------------------------------------------ inceleme kuyruğu */}
         <Panel
-          title="Onayını bekleyenler"
+          title={t(l, 'Onayını bekleyenler')}
           icon={<IconSparkle />}
           action={
             <Link href="/yazilar?durum=NEEDS_REVIEW" className="text-xs hover:underline"
               style={{ color: 'var(--ink-3)' }}>
-              tümü
+              {t(l, 'tümü')}
             </Link>
           }
         >
           {reviewList.length === 0 ? (
             <p className="py-8 text-center text-sm" style={{ color: 'var(--ink-3)' }}>
-              Bekleyen yazı yok.
+              {t(l, 'Bekleyen yazı yok.')}
             </p>
           ) : (
             <ul className="-my-2">
@@ -227,8 +230,8 @@ export default async function OzetPage() {
                       {a.title}
                     </Link>
                     <div className="mt-0.5 text-xs" style={{ color: 'var(--ink-3)' }}>
-                      {a.site.name} · {a.locale.toUpperCase()} · {a.wordCount ?? 0} kelime
-                      {a.revisionCount > 0 && ` · ${a.revisionCount} düzeltme`}
+                      {a.site.name} · {a.locale.toUpperCase()} · {a.wordCount ?? 0} {t(l, 'kelime')}
+                      {a.revisionCount > 0 && ` · ${a.revisionCount} ${t(l, 'düzeltme')}`}
                     </div>
                   </div>
                   <ScorePill score={a.seoScore} />
@@ -239,14 +242,14 @@ export default async function OzetPage() {
         </Panel>
 
         {/* ------------------------------------------------------- takvim */}
-        <Panel title="Yaklaşan yayınlar" icon={<IconCalendar />}>
+        <Panel title={t(l, 'Yaklaşan yayınlar')} icon={<IconCalendar />}>
           {upcoming.length === 0 ? (
             <EmptyState
-              title="Takvimde yazı yok"
-              hint="Konu havuzuna başlık ekleyin; sistem takvime dizip üretmeye başlar."
+              title={t(l, 'Takvimde yazı yok')}
+              hint={t(l, 'Konu havuzuna başlık ekleyin; sistem takvime dizip üretmeye başlar.')}
               action={
                 <Link href="/konular" className="btn-primary mt-3">
-                  Konu havuzu
+                  {t(l, 'Konu havuzu')}
                 </Link>
               }
             />
@@ -281,16 +284,16 @@ export default async function OzetPage() {
         <div className="space-y-5">
           <div className="card-pad flex flex-col items-center text-center">
             <div className="mb-3 text-xs font-medium" style={{ color: 'var(--ink-3)' }}>
-              Bu ayki ortalama kalite
+              {t(l, 'Bu ayki ortalama kalite')}
             </div>
             <ScoreRing score={ortalama || null} size={92} />
             <p className="mt-3 text-xs" style={{ color: 'var(--ink-3)' }}>
-              Üretilen yazıların otomatik denetim ortalaması
+              {t(l, 'Üretilen yazıların otomatik denetim ortalaması')}
             </p>
           </div>
 
           {recentErrors.length > 0 && (
-            <Panel title="Son hatalar" icon={<IconAlert />}>
+            <Panel title={t(l, 'Son hatalar')} icon={<IconAlert />}>
               <ul className="space-y-3">
                 {recentErrors.map((j) => (
                   <li key={j.id} className="text-xs">
@@ -304,7 +307,7 @@ export default async function OzetPage() {
                     {j.articleId && (
                       <Link href={`/yazilar/${j.articleId}`} className="hover:underline"
                         style={{ color: 'var(--ink-3)' }}>
-                        yazıyı aç →
+                        {t(l, 'yazıyı aç →')}
                       </Link>
                     )}
                   </li>
