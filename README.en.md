@@ -1,11 +1,58 @@
-# DPDAI Blog Automation
+<div align="center">
+
+# 🤖 DPDAI Blog Automation
+
+### Enter the topics — let AI write, self-correct, illustrate, translate and publish to WordPress.
+
+**Multi-site · multilingual · SEO-friendly · self-hosted · open source**
 
 [Türkçe](README.md) · **English**
 
-A multi-site, multilingual, SEO-friendly blog production and publishing panel.
-You enter the topics; the system writes the article on a schedule, self-reviews and
-corrects it, generates and quality-checks the image, translates it, and pushes it to
-WordPress. You approve from the panel.
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)
+![Docker](https://img.shields.io/badge/self--host-Docker-2496ED?logo=docker&logoColor=white)
+![WordPress](https://img.shields.io/badge/WordPress-REST%20%2B%20Bridge-21759B?logo=wordpress&logoColor=white)
+![License: MIT](https://img.shields.io/badge/license-MIT-22c55e)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-6366f1)
+
+[![Stars](https://img.shields.io/github/stars/huseyinagacayak/dpdai-blog-otomasyon?style=social)](https://github.com/huseyinagacayak/dpdai-blog-otomasyon/stargazers)
+
+</div>
+
+---
+
+**Running 10, 50, 100 WordPress sites?** Keeping each one fed with regular, high-quality,
+SEO-friendly posts is a full-time job. DPDAI automates it: **you enter the topics** — the
+system writes the article on a schedule, **self-reviews and corrects it**, generates and
+quality-checks the image, **translates it**, and pushes it to WordPress. You just approve
+from the panel.
+
+No cloud subscription, no monthly fee. **Runs on your own server**, uses your own API keys.
+The code is entirely yours.
+
+## ✨ Highlights
+
+- 🧠 **Autonomous quality loop** — AI editor critique + 20-point measurement; self-fixes and won't publish below the threshold
+- 🎨 **Branded cover images** — a consistent, on-topic cover with the title overlaid on every post
+- 🌍 **Multilingual translation** — scans all content (posts/pages/products), completes missing translations with sector-aware terminology, even translates menus (Polylang)
+- 🔌 **API pool + failover** — falls back if a provider fails; free provider support (Gemini, Groq, OpenRouter, Pollinations…)
+- 🔗 **Real internal linking** — actual `<a>` links to real posts, not fabricated ones
+- 📊 **Statistics + site SEO audit** — pure-SVG charts, prioritized action plan
+- 💸 **Budget cap** + 🔔 **Telegram/Slack notifications** + 💾 **automatic pg_dump backup**
+- 🧩 **One-click WordPress bridge** — download from the panel, self-updating (no uploading to 10+ sites by hand)
+
+## 🚀 Quick start (Docker)
+
+```bash
+git clone https://github.com/huseyinagacayak/dpdai-blog-otomasyon.git
+cd dpdai-blog-otomasyon
+cp .env.example .env        # generate ENCRYPTION_KEY and AUTH_SECRET (see below)
+docker compose up -d --build
+```
+
+Panel: `http://localhost:3000` — log in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from `.env`.
+See below for detailed setup, free APIs and the WordPress side.
 
 ## What it does
 

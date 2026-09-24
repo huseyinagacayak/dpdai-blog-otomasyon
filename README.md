@@ -1,11 +1,57 @@
-# DPDAI Blog Otomasyon
+<div align="center">
+
+# 🤖 DPDAI Blog Otomasyon
+
+### Konuları girin — yapay zekâ yazsın, düzeltsin, görselini üretsin, çevirsin ve WordPress'e yayınlasın.
+
+**Çok siteli · çok dilli · SEO uyumlu · kendi sunucunuzda (self-host) · açık kaynak**
 
 **Türkçe** · [English](README.en.md)
 
-Çok siteli, çok dilli, SEO uyumlu blog üretim ve yayın paneli.
-Konu başlıklarını girersiniz; sistem takvime göre metni yazar, kendi kendini denetleyip
-düzeltir, görseli üretip kalitesini kontrol eder, çevirir ve WordPress'e gönderir.
-Siz panelden onaylarsınız.
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)
+![Docker](https://img.shields.io/badge/self--host-Docker-2496ED?logo=docker&logoColor=white)
+![WordPress](https://img.shields.io/badge/WordPress-REST%20%2B%20Bridge-21759B?logo=wordpress&logoColor=white)
+![License: MIT](https://img.shields.io/badge/license-MIT-22c55e)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-6366f1)
+
+[![Stars](https://img.shields.io/github/stars/huseyinagacayak/dpdai-blog-otomasyon?style=social)](https://github.com/huseyinagacayak/dpdai-blog-otomasyon/stargazers)
+
+</div>
+
+---
+
+**10, 50, 100 WordPress siteniz mi var?** Her birine düzenli, kaliteli, SEO uyumlu blog
+girmek tam zamanlı bir iş. DPDAI bunu otomatikleştirir: **konu başlıklarını girersiniz** —
+sistem takvime göre metni yazar, **kendi kendini denetleyip düzeltir**, görselini üretip
+kalitesini kontrol eder, **çevirir** ve WordPress'e gönderir. Siz sadece panelden onaylarsınız.
+
+Bulut aboneliği yok, aylık ücret yok. **Kendi sunucunuzda çalışır**, kendi API anahtarlarınızı
+kullanır. Kod tamamen sizde.
+
+## ✨ Öne çıkanlar
+
+- 🧠 **Otonom kalite döngüsü** — AI editör eleştirisi + 20 maddelik ölçüm ile yazıyı kendi düzeltir; eşiği geçmeyen yayınlanmaz
+- 🎨 **Markalı kapak görseli** — her yazıya tutarlı, başlığı üstünde, konuyla %100 alakalı kapak
+- 🌍 **Çok dilli çeviri** — sitedeki tüm içeriği (yazı/sayfa/ürün) tarar, eksik çevirileri sektöre uygun tamamlar, menüleri bile çevirir (Polylang)
+- 🔌 **API havuzu + yedeğe geçiş** — biri düşerse diğerine geçer; ücretsiz sağlayıcı desteği (Gemini, Groq, OpenRouter, Pollinations…)
+- 🔗 **Gerçek iç linkleme** — uydurma değil, sitedeki gerçek yazılara `<a>` linkleri
+- 📊 **İstatistik + site SEO denetimi** — saf SVG grafikler, öncelikli eylem planı
+- 💸 **Bütçe tavanı** + 🔔 **Telegram/Slack bildirim** + 💾 **otomatik pg_dump yedeği**
+- 🧩 **Tek tık WordPress köprüsü** — panelden indir, kendini günceller (10+ siteye tek tek yükleme yok)
+
+## 🚀 Hızlı kurulum (Docker)
+
+```bash
+git clone https://github.com/huseyinagacayak/dpdai-blog-otomasyon.git
+cd dpdai-blog-otomasyon
+cp .env.example .env        # ENCRYPTION_KEY ve AUTH_SECRET üretin (aşağıda)
+docker compose up -d --build
+```
+
+Panel: `http://localhost:3000` — giriş `.env` içindeki `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+Ayrıntılı kurulum, ücretsiz API'ler ve WordPress tarafı için aşağıya bakın.
 
 ## Ne yapar
 
