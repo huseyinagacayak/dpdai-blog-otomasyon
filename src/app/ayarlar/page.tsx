@@ -101,7 +101,7 @@ export default async function AyarlarPage() {
 
         <CredentialPool
           kind="TEXT"
-          title="Metin sağlayıcıları"
+          title={t(l, 'Metin sağlayıcıları')}
           description="Plan, metin, SEO paketi, editör eleştirisi, düzeltme, çeviri ve iç link seçimi bu havuzdan çalışır. Görsel denetimi için işaretli girişler kullanılır (Claude ve OpenAI uyumlu olanlar)."
           items={textCreds}
           presets={TEXT_PRESETS}
@@ -109,7 +109,7 @@ export default async function AyarlarPage() {
 
         <CredentialPool
           kind="IMAGE"
-          title="Görsel sağlayıcıları"
+          title={t(l, 'Görsel sağlayıcıları')}
           description="Öne çıkan görseller bu havuzdan üretilir. Ücretli bir sağlayıcının altına ücretsiz bir yedek koymanız önerilir; kota dolduğunda üretim durmaz."
           items={imageCreds}
           presets={IMAGE_PRESETS}
@@ -118,7 +118,7 @@ export default async function AyarlarPage() {
 
       {/* ------------------------------------------------------------- bütçe */}
       <form action={saveBudget} className="mt-6">
-        <Panel title="Aylık bütçe tavanı">
+        <Panel title={t(l, 'Aylık bütçe tavanı')}>
           <p className="mb-4 text-xs" style={{ color: 'var(--ink-3)' }}>
             Tüm sitelerin bu ayki toplam model harcaması. Sıfır bırakırsanız sınır uygulanmaz.
           </p>
@@ -195,7 +195,7 @@ export default async function AyarlarPage() {
 
       {/* --------------------------------------------------------- bildirimler */}
       <form action={saveNotifications} className="mt-6">
-        <Panel title="Bildirimler">
+        <Panel title={t(l, 'Bildirimler')}>
           <p className="mb-4 text-xs" style={{ color: 'var(--ink-3)' }}>
             Sistem gözetimsiz çalıştığı için hataları buradan öğrenirsiniz. Telegram için
             BotFather&apos;dan bot açıp token alın, sohbet kimliğini userinfobot&apos;tan öğrenin.
@@ -277,7 +277,7 @@ export default async function AyarlarPage() {
 
       {/* ------------------------------------------------------------- yedekleme */}
       <form action={runBackupNow} className="mt-6">
-        <Panel title="Veritabanı yedeği">
+        <Panel title={t(l, 'Veritabanı yedeği')}>
           <p className="mb-4 text-xs" style={{ color: 'var(--ink-3)' }}>
             Site kimlik bilgileri, API anahtarları ve tüm geçmiş Postgres&apos;te tutulur. Worker
             günde bir kez otomatik yedek alır; en yeni {backupCfg.keep} yedek saklanır, gerisi

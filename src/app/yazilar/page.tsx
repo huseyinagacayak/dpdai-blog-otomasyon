@@ -72,18 +72,18 @@ export default async function YazilarPage({
       <div className="mb-5 space-y-2">
         <div className="flex flex-wrap gap-1.5">
           <FilterChip href={qs({ durum: undefined })} active={!sp.durum}>
-            Tümü
+            {t(l, 'Tümü')}
           </FilterChip>
           {DURUMLAR.filter((d) => countOf(d) > 0 || sp.durum === d).map((d) => (
             <FilterChip key={d} href={qs({ durum: d })} active={sp.durum === d} count={countOf(d)}>
-              {ARTICLE_LABEL[d]}
+              {t(l, ARTICLE_LABEL[d])}
             </FilterChip>
           ))}
         </div>
         {sites.length > 1 && (
           <div className="flex flex-wrap gap-1.5">
             <FilterChip href={qs({ site: undefined })} active={!sp.site}>
-              Tüm siteler
+              {t(l, 'Tüm siteler')}
             </FilterChip>
             {sites.map((s) => (
               <FilterChip key={s.id} href={qs({ site: s.id })} active={sp.site === s.id}>
@@ -97,11 +97,11 @@ export default async function YazilarPage({
       {articles.length === 0 ? (
         <EmptyState
           icon={<IconArticle className="size-5" />}
-          title="Yazı bulunamadı"
-          hint="Konu havuzuna başlık ekleyin; sistem takvime göre üretmeye başlar."
+          title={t(l, 'Yazı bulunamadı')}
+          hint={t(l, 'Konu havuzuna başlık ekleyin; sistem takvime göre üretmeye başlar.')}
           action={
             <Link href="/konular" className="btn-primary mt-3">
-              Konu havuzu
+              {t(l, 'Konu havuzu')}
             </Link>
           }
         />
@@ -110,13 +110,13 @@ export default async function YazilarPage({
           <table className="tbl">
             <thead>
               <tr>
-                <th>Başlık</th>
-                <th>Site</th>
-                <th>Dil</th>
-                <th>Durum</th>
-                <th>Kalite</th>
-                <th>Kelime</th>
-                <th>Yayın</th>
+                <th>{t(l, 'Başlık')}</th>
+                <th>{t(l, 'Site')}</th>
+                <th>{t(l, 'Dil')}</th>
+                <th>{t(l, 'Durum')}</th>
+                <th>{t(l, 'Kalite')}</th>
+                <th>{t(l, 'Kelime')}</th>
+                <th>{t(l, 'Yayın')}</th>
               </tr>
             </thead>
             <tbody>
@@ -136,7 +136,7 @@ export default async function YazilarPage({
                     )}
                     {!a.lastError && a.revisionCount > 0 && (
                       <div className="text-xs" style={{ color: 'var(--ink-3)' }}>
-                        {a.revisionCount} otomatik düzeltme turu
+                        {a.revisionCount} {t(l, 'otomatik düzeltme turu')}
                       </div>
                     )}
                   </td>

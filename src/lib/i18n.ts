@@ -121,6 +121,18 @@ const EN: Record<string, string> = {
   '— çoğu durumda "Tekrar dene" yeterli olur.':
     '— in most cases "Retry" is enough.',
 
+  // --- yazılar / posts list
+  'Tüm siteler': 'All sites',
+  'Yazı bulunamadı': 'No posts found',
+  'Konu havuzuna başlık ekleyin; sistem takvime göre üretmeye başlar.':
+    'Add topics to the pool; the system starts producing them on schedule.',
+  'Başlık': 'Title',
+  'Site': 'Site',
+  'Durum': 'Status',
+  'Kalite': 'Quality',
+  'Kelime': 'Words',
+  'Yayın': 'Publish',
+
   // --- siteler / sites
   'İstatistikler': 'Statistics',
   'kayıt gösteriliyor': 'records shown',
@@ -149,6 +161,13 @@ const EN: Record<string, string> = {
   'Çeviriler yapılıyor': 'Translations in progress',
   'Çeviriler tamamlandı': 'Translations complete',
   'Polylang gerekli': 'Polylang required',
+
+  // --- ayarlar / settings
+  'Metin sağlayıcıları': 'Text providers',
+  'Görsel sağlayıcıları': 'Image providers',
+  'Aylık bütçe tavanı': 'Monthly budget cap',
+  'Bildirimler': 'Notifications',
+  'Veritabanı yedeği': 'Database backup',
 
   // --- giris / login
   'Giriş yap': 'Sign in',
