@@ -279,19 +279,19 @@ export default async function IstatistikPage({
 
       {/* -------------------------------------------------------- zaman serisi */}
       <div className="mt-5">
-        <Panel title="Üretim ve yayın akışı" icon={<IconActivity />}>
+        <Panel title={t(l, 'Üretim ve yayın akışı')} icon={<IconActivity />}>
           <AreaChart data={seri} labels={['üretilen', 'yayınlanan']} height={200} />
         </Panel>
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         {/* ------------------------------------------------------ durumlar */}
-        <Panel title="Yazı durumları" icon={<IconSparkle />}>
+        <Panel title={t(l, 'Yazı durumları')} icon={<IconSparkle />}>
           <Donut data={durumlar} centerLabel="yazı" />
         </Panel>
 
         {/* ------------------------------------------------- kalite dağılımı */}
-        <Panel title="Kalite puanı dağılımı">
+        <Panel title={t(l, 'Kalite puanı dağılımı')}>
           <ColumnChart
             data={puanDagilim}
             height={150}
@@ -315,11 +315,11 @@ export default async function IstatistikPage({
         </Panel>
 
         {/* ---------------------------------------------------- site bazında */}
-        <Panel title="Site başına üretim" icon={<IconGlobe />}>
+        <Panel title={t(l, 'Site başına üretim')} icon={<IconGlobe />}>
           <BarList data={siteUretim} format={(v) => `${v} yazı`} />
         </Panel>
 
-        <Panel title="Site başına ortalama kalite">
+        <Panel title={t(l, 'Site başına ortalama kalite')}>
           <BarList
             data={siteKalite}
             max={100}
@@ -329,7 +329,7 @@ export default async function IstatistikPage({
         </Panel>
 
         {/* ------------------------------------------------------- maliyet */}
-        <Panel title="Adım başına maliyet">
+        <Panel title={t(l, 'Adım başına maliyet')}>
           <BarList data={adimMaliyet} format={(v) => fmtMoney(v)} />
           {adimMaliyet.length === 0 && (
             <p className="text-xs" style={{ color: 'var(--ink-3)' }}>
@@ -338,12 +338,12 @@ export default async function IstatistikPage({
           )}
         </Panel>
 
-        <Panel title="Adım başına ortalama süre">
+        <Panel title={t(l, 'Adım başına ortalama süre')}>
           <BarList data={adimSure} format={(v) => `${v} sn`} />
         </Panel>
 
         {/* -------------------------------------------------------- havuz */}
-        <Panel title="Sağlayıcı kullanımı">
+        <Panel title={t(l, 'Sağlayıcı kullanımı')}>
           <BarList data={havuzKullanim} format={(v) => `${v} çağrı`} />
           {havuzKullanim.length === 0 && (
             <p className="text-xs" style={{ color: 'var(--ink-3)' }}>
@@ -353,7 +353,7 @@ export default async function IstatistikPage({
         </Panel>
 
         {/* --------------------------------------------------- hata oranları */}
-        <Panel title="Adım başına hata oranı">
+        <Panel title={t(l, 'Adım başına hata oranı')}>
           {hataliAdim.length === 0 ? (
             <p className="text-xs" style={{ color: 'var(--ok)' }}>
               Bu dönemde hiç hata yok.
@@ -371,7 +371,7 @@ export default async function IstatistikPage({
 
       {/* ------------------------------------------------------------ takvim */}
       <div className="mt-5">
-        <Panel title="Yayın yoğunluğu" icon={<IconCalendar />}>
+        <Panel title={t(l, 'Yayın yoğunluğu')} icon={<IconCalendar />}>
           <p className="mb-3 text-xs" style={{ color: 'var(--ink-3)' }}>
             Son 13 haftanın günlük yayın sayısı. Boşluklar yayın yapılmayan günleri gösterir.
           </p>

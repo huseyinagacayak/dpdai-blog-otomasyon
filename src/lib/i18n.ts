@@ -133,6 +133,18 @@ const EN: Record<string, string> = {
   'Kelime': 'Words',
   'Yayın': 'Publish',
 
+  // --- istatistik / statistics
+  'Üretim ve yayın akışı': 'Production & publishing flow',
+  'Yazı durumları': 'Post statuses',
+  'Kalite puanı dağılımı': 'Quality score distribution',
+  'Site başına üretim': 'Production per site',
+  'Site başına ortalama kalite': 'Average quality per site',
+  'Adım başına maliyet': 'Cost per step',
+  'Adım başına ortalama süre': 'Average time per step',
+  'Sağlayıcı kullanımı': 'Provider usage',
+  'Adım başına hata oranı': 'Error rate per step',
+  'Yayın yoğunluğu': 'Publishing density',
+
   // --- siteler / sites
   'İstatistikler': 'Statistics',
   'kayıt gösteriliyor': 'records shown',
