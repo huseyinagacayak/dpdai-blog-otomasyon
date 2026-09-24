@@ -1,0 +1,441 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- enums
+
+enum Platform {
+  WORDPRESS
+  PHP_CUSTOM
+}
+
+enum SiteStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+/// Sitede SEO metalarini hangi kanaldan yazacagimiz
+enum SeoPlugin {
+  NONE
+  YOAST
+  RANKMATH
+  BRIDGE // kendi dpdai-bridge eklentimiz
+}
+
+/// Cok dil stratejisi
+enum I18nMode {
+  NONE // tek dil
+  POLYLANG // ayni site, Polylang ile baglanti
+  WPML // ayni site, WPML ile baglanti
+  SIBLING // her dil ayri site/domain (siblingGroup ile eslesir)
+}
+
+enum TopicStatus {
+  QUEUED // havuzda bekliyor
+  SCHEDULED // takvime dusuruldu
+  RUNNING // uretim hattinda
+  DONE
+  FAILED
+  ARCHIVED
+}
+
+enum ArticleStatus {
+  QUEUED
+  DRAFTING // metin uretiliyor
+  REVISING // otonom kalite dongusunde duzeltiliyor
+  IMAGING // gorsel uretiliyor
+  TRANSLATING
+  NEEDS_REVIEW // taslak hazir, onay bekliyor
+  APPROVED // onaylandi, yayina hazir
+  PUBLISHING
+  PUBLISHED
+  FAILED
+}
+
+/// Otomatik kalite denetiminin ne kadar mudahale edecegi
+enum QualityMode {
+  OFF // sadece uret, denetleme
+  CHECK // denetle ve puanla, duzeltme yapma
+  AUTONOMOUS // denetle, bulgulari kendi duzeltsin, yeniden denetlesin
+}
+
+enum MediaRole {
+  FEATURED
+  INLINE
+}
+
+enum JobStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+// ---------------------------------------------------------------- models
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+}
+
+model Site {
+  id       String     @id @default(cuid())
+  name     String
+  url      String // https://ornek.com
+  platform Platform   @default(WORDPRESS)
+  status   SiteStatus @default(ACTIVE)
+  notes    String?
+
+  // --- baglanti (sifreli saklanir)
+  wpUsername    String?
+  wpAppPassword String? // encrypted
+  bridgeToken   String? // encrypted - kendi eklentimiz / php endpoint icin
+  bridgeUrl     String? // PHP_CUSTOM icin ozel endpoint
+
+  // --- yetenekler (baglanti testinde otomatik doldurulur)
+  seoPlugin    SeoPlugin @default(NONE)
+  i18nMode     I18nMode  @default(NONE)
+  hasBridge    Boolean   @default(false)
+  capabilities Json? // ham kesif ciktisi
+  lastCheckAt  DateTime?
+  lastCheckOk  Boolean?
+  lastCheckMsg String?
+
+  // --- dil
+  defaultLocale String   @default("tr")
+  locales       String[] @default(["tr"])
+  siblingGroup  String? // SIBLING modunda ayni grubun siteleri eslesir
+
+  // --- takvim / kota
+  publishDays Int[]  @default([1]) // 0=Pazar .. 6=Cumartesi
+  weeklyQuota Int    @default(1)
+  publishHour Int    @default(9)
+  timezone    String @default("Europe/Istanbul")
+
+  // --- yayin davranisi
+  autoPublish       Boolean  @default(false) // false => taslak + onay
+  wpPostStatus      String   @default("draft")
+  defaultCategoryId Int?
+  defaultAuthorId   Int?
+  defaultTags       String[] @default([])
+
+  // --- marka / icerik kurallari
+  /** Sitenin sektoru/nis'i (ornek: "Fintek / POS odeme sistemleri").
+   *  Uretim ve ceviride sektore uygun teknik terminoloji icin kullanilir. */
+  sector             String?
+  brandVoice         String?
+  audience           String?
+  extraInstructions  String?
+  bannedWords        String[] @default([])
+  internalLinkPolicy String?
+  wordCountMin       Int      @default(900)
+  wordCountMax       Int      @default(1600)
+
+  // --- ic linkleme
+  /// Uretim sonrasi govdeye gercek ic link yerlestirilsin mi
+  interlink     Boolean   @default(true)
+  /// Sitede halihazirda yayinda olan yazi basliklari (cakisma kontrolu icin)
+  knownTitles   Json?
+  knownTitlesAt DateTime?
+
+  // --- kalite kontrolu
+  qualityMode       QualityMode @default(AUTONOMOUS)
+  /// Bu puanin altindaki yazi otomatik yayinlanmaz
+  minSeoScore       Int         @default(82)
+  /// Otonom modda en fazla kac duzeltme turu yapilacak
+  maxRevisions      Int         @default(2)
+  /// Gorsel uretiminde kalite denetimi (metin/filigran/konu uyumu)
+  imageQualityCheck Boolean     @default(true)
+  /// En fazla kac gorsel denemesi yapilacak
+  maxImageAttempts  Int         @default(2)
+  /// Marka gorsel yonergesi disinda ozel olumsuz prompt
+  imageNegative     String?
+
+  // --- saglayici override (bos ise havuz sirasi kullanilir)
+  /// Havuzdaki belirli bir girisi one al (zincir yine yedek olarak calisir)
+  preferredTextCredentialId  String?
+  preferredImageCredentialId String?
+
+  textProvider  String?
+  textModel     String?
+  imageProvider String?
+  imageModel    String?
+  imageStyle    String?
+  imageAspect   String? @default("16:9")
+
+  topics   Topic[]
+  articles Article[]
+  jobs     JobRun[]
+  audits   SeoAudit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+model Topic {
+  id     String @id @default(cuid())
+  siteId String
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  title         String
+  keyword       String? // focus keyword
+  notes         String? // brief / ozel talimat
+  locale        String? // bos ise site.defaultLocale
+  targetLocales String[] @default([]) // ceviri hedefleri; bos ise site.locales
+  priority      Int      @default(0)
+
+  status       TopicStatus @default(QUEUED)
+  /// Yamyamlasma taramasi bulgulari: [{ kind, score, title, articleId?, topicId?, url? }]
+  conflicts    Json?
+  conflictAt   DateTime?
+  scheduledFor DateTime?
+  attempts     Int         @default(0)
+  lastError    String?
+
+  articles  Article[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([siteId, status])
+  @@index([scheduledFor])
+}
+
+model Article {
+  id      String  @id @default(cuid())
+  siteId  String
+  site    Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  topicId String?
+  topic   Topic?  @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  locale String
+  status ArticleStatus @default(QUEUED)
+
+  // ceviri iliskisi
+  parentId String?
+  parent   Article?  @relation("Translations", fields: [parentId], references: [id], onDelete: Cascade)
+  children Article[] @relation("Translations")
+
+  title       String
+  slug        String?
+  excerpt     String?
+  contentHtml String? @db.Text
+  outline     Json?
+
+  // SEO paketi: metaTitle, metaDescription, focusKeyword, secondaryKeywords,
+  // schemaJsonLd, internalLinks, faq
+  seo       Json?
+  seoScore  Int?
+  seoIssues Json?
+  wordCount Int?
+
+  media MediaAsset[]
+
+  outboundLinks InternalLink[] @relation("LinkFrom")
+  inboundLinks  InternalLink[] @relation("LinkTo")
+
+  // yayin
+  remotePostId  Int?
+  remoteUrl     String?
+  remoteMediaId Int?
+  publishedAt   DateTime?
+  scheduledFor  DateTime?
+
+  // kalite dongusu
+  revisionCount Int   @default(0)
+  /// AI editorun son eleştiri raporu
+  critique      Json?
+  /// Her turdan sonraki puan gecmisi: [{ round, score, wordCount }]
+  scoreHistory  Json?
+
+  // olcum
+  tokensIn  Int?  @default(0)
+  tokensOut Int?  @default(0)
+  costUsd   Float @default(0)
+
+  lastError String?
+  jobs      JobRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([siteId, status])
+  @@index([status])
+  @@index([parentId])
+}
+
+model MediaAsset {
+  id        String  @id @default(cuid())
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  role     MediaRole @default(FEATURED)
+  prompt   String?
+  provider String?
+  model    String?
+
+  localPath String? // storage/ altinda
+  mimeType  String?
+  width     Int?
+  height    Int?
+  bytes     Int?
+
+  alt     String?
+  caption String?
+  title   String?
+
+  remoteMediaId Int?
+  remoteUrl     String?
+
+  /// Teknik + gorsel denetim sonucu
+  checks   Json?
+  attempts Int   @default(1)
+
+  costUsd   Float    @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+}
+
+model JobRun {
+  id        String   @id @default(cuid())
+  siteId    String?
+  site      Site?    @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  articleId String?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  kind    String // plan | outline | draft | seo | image | translate | publish | discover
+  step    String?
+  status  JobStatus @default(RUNNING)
+  message String?
+  payload Json?
+
+  tokensIn   Int?  @default(0)
+  tokensOut  Int?  @default(0)
+  costUsd    Float @default(0)
+  durationMs Int?
+
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@index([articleId])
+  @@index([siteId, kind])
+  @@index([startedAt])
+}
+
+/// API havuzundaki bir giris. Ayni tur icin birden fazla tanimlanip
+/// oncelik sirasina gore denenir; biri duserse digerine gecilir.
+enum CredentialKind {
+  TEXT
+  IMAGE
+}
+
+/// Bir saglayicinin neden devre disi kaldigi
+enum HealthState {
+  OK
+  /// Gecici sorun: hiz siniri, sunucu hatasi, ag - kendiliginden geri doner
+  COOLDOWN
+  /// Kalici sorun: anahtar gecersiz veya kota bitti - kullanici mudahalesi gerekir
+  BROKEN
+}
+
+model ApiCredential {
+  id    String         @id @default(cuid())
+  kind  CredentialKind
+  label String
+
+  /// anthropic | openai | openai-compatible | gemini | ideogram | stability
+  /// | pollinations | cloudflare | huggingface
+  provider String
+  apiKey   String? // sifreli
+  baseUrl  String?
+  model    String?
+  /// Saglayiciya ozel ek alanlar (ornek: cloudflare accountId)
+  extra    Json?
+
+  enabled  Boolean @default(true)
+  /// Kucuk olan once denenir
+  priority Int     @default(100)
+  /// Ucretsiz katman - panelde isaretlenir, maliyet 0 sayilir
+  free     Boolean @default(false)
+  /// TEXT girisleri icin: gorsel denetiminde kullanilabilir mi
+  vision   Boolean @default(false)
+
+  // --- saglik
+  health        HealthState @default(OK)
+  lastOkAt      DateTime?
+  lastErrorAt   DateTime?
+  lastError     String?
+  failCount     Int         @default(0)
+  cooldownUntil DateTime?
+
+  // --- kullanim
+  calls   Int   @default(0)
+  fails   Int   @default(0)
+  costUsd Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([kind, enabled, priority])
+}
+
+/// Yazidan yaziya yerlestirilen gercek ic link (link grafigi)
+model InternalLink {
+  id String @id @default(cuid())
+
+  fromArticleId String
+  from          Article @relation("LinkFrom", fields: [fromArticleId], references: [id], onDelete: Cascade)
+
+  /// Bu sistemde uretilmis bir yaziya gidiyorsa dolu; sitenin mevcut
+  /// sayfasina (urun, kategori, kurumsal sayfa) gidiyorsa bos kalir.
+  toArticleId String?
+  to          Article? @relation("LinkTo", fields: [toArticleId], references: [id], onDelete: Cascade)
+
+  anchor      String
+  targetUrl   String
+  targetTitle String?
+  /// true = hedef sitede zaten var olan, bizim uretmedigimiz bir sayfa
+  external    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([fromArticleId, targetUrl])
+  @@index([toArticleId])
+}
+
+/// Site geneli SEO saglik denetimi (dpdai-bridge kuruluysa derin, degilse yuzeysel)
+model SeoAudit {
+  id     String @id @default(cuid())
+  siteId String
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  score      Int
+  /// Kategori bazli puanlar: { indexleme, teknik, icerik, meta, yapisalVeri }
+  sections   Json
+  /// Tekil bulgular: [{ level, code, area, label, detail, howTo }]
+  findings   Json
+  /// Ham veri (eklentiden gelen + panelin kendi topladigi)
+  raw        Json?
+  /// AI'nin oncelik sirali eylem plani
+  actionPlan Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([siteId, createdAt])
+}
+
+/// Global ayarlar + saglayici anahtarlari (deger sifreli JSON)
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

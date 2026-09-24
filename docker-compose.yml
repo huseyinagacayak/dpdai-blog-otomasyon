@@ -1,0 +1,69 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dpdai
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dpdai_sifre_degistir}
+      POSTGRES_DB: dpdai
+      TZ: ${TZ:-Europe/Istanbul}
+    # Yalnizca yerel makineye acilir (uzak erisim yok)
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dpdai -d dpdai"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  panel:
+    build: .
+    command: ["panel"]
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://dpdai:${POSTGRES_PASSWORD:-dpdai_sifre_degistir}@postgres:5432/dpdai?schema=public
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "${PANEL_PORT:-3000}:3000"
+    volumes:
+      - storage:/app/storage
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  worker:
+    build: .
+    command: ["worker"]
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://dpdai:${POSTGRES_PASSWORD:-dpdai_sifre_degistir}@postgres:5432/dpdai?schema=public
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - storage:/app/storage
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      panel: { condition: service_started }
+
+volumes:
+  pgdata:
+  redisdata:
+  storage:

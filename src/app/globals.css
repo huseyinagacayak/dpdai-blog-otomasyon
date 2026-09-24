@@ -1,0 +1,484 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Renk belirtecleri
+   Tailwind @theme statik oldugu icin renkler var() uzerinden baglanir;
+   boylece ayni yardimci sinif her temada dogru degeri alir.
+
+   Tema secimi <html data-theme="..."> ile sunucudan gelir:
+     light  -> acik (varsayilan)
+     dark   -> koyu
+     system -> isletim sistemi tercihi
+   ========================================================================== */
+
+:root {
+  /* ---------- KOYU PALET (degerler yalnizca burada tanimli) ---------- */
+  --d-canvas: #0d1017;
+  --d-surface: #151922;
+  --d-surface-2: #1a1f29;
+  --d-surface-3: #212734;
+
+  --d-line: #2a3140;
+  --d-line-strong: #3a4354;
+
+  --d-ink: #eaeef6;
+  --d-ink-2: #a3aec0;
+  --d-ink-3: #737d90;
+
+  --d-accent: #8189f7;
+  --d-accent-hover: #9aa1f9;
+  --d-accent-fg: #0b0d13;
+  --d-accent-soft: #1e2240;
+  --d-accent-line: #3a4174;
+
+  --d-ok: #5ed69b;
+  --d-ok-soft: #10241c;
+  --d-ok-line: #24503f;
+  --d-warn: #f0b26b;
+  --d-warn-soft: #281d10;
+  --d-warn-line: #513a1d;
+  --d-err: #f88b82;
+  --d-err-soft: #291514;
+  --d-err-line: #562927;
+  --d-info: #74a9f8;
+  --d-info-soft: #121f33;
+  --d-info-line: #274064;
+
+  --d-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.35);
+  --d-shadow-md: 0 4px 14px -2px rgb(0 0 0 / 0.45), 0 2px 6px -2px rgb(0 0 0 / 0.3);
+
+  /* ---------- ACIK PALET = VARSAYILAN ---------- */
+  --canvas: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #fbfcfd;
+  --surface-3: #f1f3f7;
+
+  --line: #e5e8ee;
+  --line-strong: #d2d7e0;
+
+  --ink: #161c28;
+  --ink-2: #55607a;
+  --ink-3: #8b95a8;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-fg: #ffffff;
+  --accent-soft: #eef1ff;
+  --accent-line: #c7cdfb;
+
+  --ok: #067647;
+  --ok-soft: #e7f6ee;
+  --ok-line: #a9dfc4;
+  --warn: #b54708;
+  --warn-soft: #fdf3e7;
+  --warn-line: #f0c9a0;
+  --err: #b42318;
+  --err-soft: #fdeceb;
+  --err-line: #f4b8b3;
+  --info: #175cd3;
+  --info-soft: #eaf1fd;
+  --info-line: #b3ccf5;
+
+  --shadow-sm: 0 1px 2px 0 rgb(16 24 40 / 0.05);
+  --shadow-md: 0 4px 12px -2px rgb(16 24 40 / 0.08), 0 2px 4px -2px rgb(16 24 40 / 0.04);
+
+  color-scheme: light;
+}
+
+/* ---------- KOYU TEMA ESLEMESI ----------
+   Ayni esleme iki yerde gerekiyor: kullanici acikca "koyu" sectiginde ve
+   "sistem" secip isletim sistemi koyu oldugunda. Renk DEGERLERI yukarida
+   tek yerde durdugu icin burada yalnizca esleme tekrarlaniyor. */
+
+:root[data-theme='dark'] {
+  --canvas: var(--d-canvas);
+  --surface: var(--d-surface);
+  --surface-2: var(--d-surface-2);
+  --surface-3: var(--d-surface-3);
+  --line: var(--d-line);
+  --line-strong: var(--d-line-strong);
+  --ink: var(--d-ink);
+  --ink-2: var(--d-ink-2);
+  --ink-3: var(--d-ink-3);
+  --accent: var(--d-accent);
+  --accent-hover: var(--d-accent-hover);
+  --accent-fg: var(--d-accent-fg);
+  --accent-soft: var(--d-accent-soft);
+  --accent-line: var(--d-accent-line);
+  --ok: var(--d-ok);
+  --ok-soft: var(--d-ok-soft);
+  --ok-line: var(--d-ok-line);
+  --warn: var(--d-warn);
+  --warn-soft: var(--d-warn-soft);
+  --warn-line: var(--d-warn-line);
+  --err: var(--d-err);
+  --err-soft: var(--d-err-soft);
+  --err-line: var(--d-err-line);
+  --info: var(--d-info);
+  --info-soft: var(--d-info-soft);
+  --info-line: var(--d-info-line);
+  --shadow-sm: var(--d-shadow-sm);
+  --shadow-md: var(--d-shadow-md);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --canvas: var(--d-canvas);
+    --surface: var(--d-surface);
+    --surface-2: var(--d-surface-2);
+    --surface-3: var(--d-surface-3);
+    --line: var(--d-line);
+    --line-strong: var(--d-line-strong);
+    --ink: var(--d-ink);
+    --ink-2: var(--d-ink-2);
+    --ink-3: var(--d-ink-3);
+    --accent: var(--d-accent);
+    --accent-hover: var(--d-accent-hover);
+    --accent-fg: var(--d-accent-fg);
+    --accent-soft: var(--d-accent-soft);
+    --accent-line: var(--d-accent-line);
+    --ok: var(--d-ok);
+    --ok-soft: var(--d-ok-soft);
+    --ok-line: var(--d-ok-line);
+    --warn: var(--d-warn);
+    --warn-soft: var(--d-warn-soft);
+    --warn-line: var(--d-warn-line);
+    --err: var(--d-err);
+    --err-soft: var(--d-err-soft);
+    --err-line: var(--d-err-line);
+    --info: var(--d-info);
+    --info-soft: var(--d-info-soft);
+    --info-line: var(--d-info-line);
+    --shadow-sm: var(--d-shadow-sm);
+    --shadow-md: var(--d-shadow-md);
+
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, monospace;
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-line: var(--accent-line);
+
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-line: var(--ok-line);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-line: var(--warn-line);
+  --color-err: var(--err);
+  --color-err-soft: var(--err-soft);
+  --color-err-line: var(--err-line);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-line: var(--info-line);
+}
+
+/* ==========================================================================
+   Temel
+   ========================================================================== */
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+/* ==========================================================================
+   Bilesenler
+   ========================================================================== */
+
+@utility btn-base {
+  @apply inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-colors duration-150;
+}
+
+@utility pill-base {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium;
+  border: 1px solid transparent;
+}
+
+@layer components {
+  /* --- yuzeyler --- */
+  .card {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    @apply rounded-xl;
+  }
+
+  .card-pad {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    @apply rounded-xl p-5;
+  }
+
+  /* --- butonlar --- */
+  .btn {
+    @apply btn-base;
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+    background-color: var(--surface);
+  }
+  .btn:hover:not(:disabled) {
+    background-color: var(--surface-3);
+  }
+
+  .btn-primary {
+    @apply btn-base;
+    background-color: var(--accent);
+    color: var(--accent-fg);
+    border: 1px solid transparent;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+  }
+
+  .btn-ghost {
+    @apply btn-base;
+    color: var(--ink-2);
+    border: 1px solid transparent;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--surface-3);
+    color: var(--ink);
+  }
+
+  .btn-danger {
+    @apply btn-base;
+    background-color: var(--err);
+    color: #fff;
+    border: 1px solid transparent;
+  }
+  .btn-danger:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .btn-sm {
+    @apply px-2.5 py-1 text-xs;
+  }
+
+  .btn:disabled,
+  .btn-primary:disabled,
+  .btn-ghost:disabled,
+  .btn-danger:disabled {
+    @apply cursor-not-allowed opacity-45;
+  }
+
+  /* --- form --- */
+  .input {
+    background-color: var(--surface);
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+    @apply w-full rounded-lg px-3 py-2 text-sm transition-colors outline-none;
+  }
+  .input::placeholder {
+    color: var(--ink-3);
+  }
+  .input:focus {
+    border-color: var(--accent);
+    outline: 3px solid var(--accent-soft);
+  }
+  textarea.input {
+    @apply leading-6;
+  }
+
+  .label {
+    color: var(--ink-2);
+    @apply mb-1.5 block text-xs font-medium;
+  }
+
+  .hint {
+    color: var(--ink-3);
+    @apply mt-1 text-xs;
+  }
+
+  /* --- rozet --- */
+  .pill-neutral {
+    @apply pill-base;
+    background-color: var(--surface-3);
+    color: var(--ink-2);
+    border-color: var(--line);
+  }
+  .pill-ok {
+    @apply pill-base;
+    background-color: var(--ok-soft);
+    color: var(--ok);
+    border-color: var(--ok-line);
+  }
+  .pill-warn {
+    @apply pill-base;
+    background-color: var(--warn-soft);
+    color: var(--warn);
+    border-color: var(--warn-line);
+  }
+  .pill-err {
+    @apply pill-base;
+    background-color: var(--err-soft);
+    color: var(--err);
+    border-color: var(--err-line);
+  }
+  .pill-info {
+    @apply pill-base;
+    background-color: var(--info-soft);
+    color: var(--info);
+    border-color: var(--info-line);
+  }
+  .pill-accent {
+    @apply pill-base;
+    background-color: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent-line);
+  }
+
+  .pill-dot {
+    @apply size-1.5 shrink-0 rounded-full;
+    background-color: currentColor;
+  }
+
+  /* --- tablo --- */
+  .table-wrap {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    @apply overflow-x-auto rounded-xl;
+  }
+  .tbl {
+    @apply w-full text-sm;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .tbl thead th {
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--line);
+    background-color: var(--surface-2);
+    @apply px-4 py-2.5 text-left text-xs font-medium tracking-wide whitespace-nowrap uppercase;
+  }
+  .tbl tbody td {
+    border-bottom: 1px solid var(--line);
+    @apply px-4 py-3 align-middle;
+  }
+  .tbl tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .tbl tbody tr {
+    @apply transition-colors;
+  }
+  .tbl tbody tr:hover {
+    background-color: var(--surface-2);
+  }
+
+  /* --- kenar cubugu --- */
+  .nav-item {
+    color: var(--ink-2);
+    @apply flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors;
+  }
+  .nav-item:hover {
+    background-color: var(--surface-3);
+    color: var(--ink);
+  }
+  .nav-item[data-active='true'] {
+    background-color: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .section-title {
+    color: var(--ink-3);
+    @apply text-[11px] font-semibold tracking-wider uppercase;
+  }
+}
+
+/* ==========================================================================
+   Yazi onizlemesi
+   ========================================================================== */
+
+.prose-article {
+  color: var(--ink);
+  @apply text-[15px] leading-7;
+}
+.prose-article h2 {
+  @apply mt-9 mb-3 text-xl font-semibold tracking-tight;
+}
+.prose-article h3 {
+  @apply mt-6 mb-2 text-base font-semibold;
+}
+.prose-article p {
+  @apply my-4;
+}
+.prose-article ul,
+.prose-article ol {
+  @apply my-4 ml-5 space-y-1.5;
+}
+.prose-article ul {
+  list-style-type: disc;
+}
+.prose-article ol {
+  list-style-type: decimal;
+}
+.prose-article a {
+  color: var(--accent);
+  @apply underline underline-offset-2;
+}
+.prose-article strong {
+  @apply font-semibold;
+}
+.prose-article table {
+  @apply my-6 w-full text-sm;
+  border-collapse: collapse;
+}
+.prose-article th,
+.prose-article td {
+  border: 1px solid var(--line);
+  @apply px-3 py-2 text-left;
+}
+.prose-article th {
+  background-color: var(--surface-2);
+  @apply font-medium;
+}
+.prose-article blockquote {
+  border-left: 3px solid var(--accent-line);
+  color: var(--ink-2);
+  @apply my-6 pl-4 italic;
+}

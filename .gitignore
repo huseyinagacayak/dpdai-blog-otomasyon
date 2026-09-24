@@ -1,0 +1,14 @@
+node_modules
+.next
+.env
+.env.local
+storage/
+*.log
+.DS_Store
+
+panel.log
+worker.log
+
+# test/derleme artıkları
+cookies.txt
+tsconfig.tsbuildinfo
