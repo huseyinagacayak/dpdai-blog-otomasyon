@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import type { ArticleStatus } from '@prisma/client';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 import { IconArticle, IconExternal } from '@/components/icons';
 import { PipelineProgress } from '@/components/PipelineProgress';
 import { ACTIVE_STATUSES } from '@/lib/pipelineStages';
@@ -34,6 +36,7 @@ export default async function YazilarPage({
   searchParams: Promise<{ durum?: string; site?: string; dil?: string }>;
 }) {
   const sp = await searchParams;
+  const l = await getLocale();
 
   const [sites, articles, counts] = await Promise.all([
     prisma.site.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
@@ -64,7 +67,7 @@ export default async function YazilarPage({
 
   return (
     <>
-      <PageHeader title="Yazılar" subtitle={`${articles.length} kayıt gösteriliyor`} />
+      <PageHeader title={t(l, 'Yazılar')} subtitle={`${articles.length} ${t(l, 'kayıt gösteriliyor')}`} />
 
       <div className="mb-5 space-y-2">
         <div className="flex flex-wrap gap-1.5">

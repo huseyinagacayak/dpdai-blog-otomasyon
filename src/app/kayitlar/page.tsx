@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { FilterChip, PageHeader, fmtDate, fmtMoney } from '@/components/ui';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 import { prisma } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -24,6 +26,7 @@ export default async function KayitlarPage({
   searchParams: Promise<{ durum?: string; tur?: string }>;
 }) {
   const sp = await searchParams;
+  const l = await getLocale();
 
   const [jobs, byKind, monthCost] = await Promise.all([
     prisma.jobRun.findMany({
@@ -52,7 +55,7 @@ export default async function KayitlarPage({
   return (
     <>
       <PageHeader
-        title="Kayıtlar"
+        title={t(l, 'Kayıtlar')}
         subtitle={`Bu ay toplam maliyet ${fmtMoney(monthCost._sum.costUsd ?? 0)}`}
       />
 

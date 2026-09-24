@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 import {
   addMonths,
   eachDayOfInterval,
@@ -43,6 +45,7 @@ export default async function TakvimPage({
   searchParams: Promise<{ site?: string; ay?: string }>;
 }) {
   const sp = await searchParams;
+  const l = await getLocale();
 
   const sites = await prisma.site.findMany({
     where: { status: { not: 'ARCHIVED' } },
@@ -106,7 +109,7 @@ export default async function TakvimPage({
   return (
     <>
       <PageHeader
-        title="Takvim"
+        title={t(l, 'Takvim')}
         subtitle={`${AY_ADI[base.getMonth()]} ${base.getFullYear()} · ${monthlyCount} yazı planlı`}
         actions={
           <div className="flex items-center gap-1">

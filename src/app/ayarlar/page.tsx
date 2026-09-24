@@ -1,6 +1,8 @@
 import { CredentialPool } from '@/components/CredentialPool';
 import { PluginCard, type SitePluginState } from '@/components/PluginCard';
 import { Alert, PageHeader, Panel, fmtDate, fmtMoney } from '@/components/ui';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 import {
   runBackupNow,
   saveBudget,
@@ -30,6 +32,7 @@ function Toggle({ name, label, checked }: { name: string; label: string; checked
 export default async function AyarlarPage() {
   // Eski tek anahtarli ayarlar varsa havuza bir kez tasinir
   await seedCredentialsFromLegacy().catch(() => 0);
+  const l = await getLocale();
 
   const [budget, budgetStatus, notif, credentials, pluginVersion, pluginVar, backupStatus, siteRows] =
     await Promise.all([
@@ -74,8 +77,8 @@ export default async function AyarlarPage() {
   return (
     <>
       <PageHeader
-        title="Ayarlar"
-        subtitle="Buradaki değerler tüm siteler için varsayılandır. Site kartında istisna tanımlayabilirsiniz."
+        title={t(l, 'Ayarlar')}
+        subtitle={t(l, 'Buradaki değerler tüm siteler için varsayılandır. Site kartında istisna tanımlayabilirsiniz.')}
       />
 
       {/* ------------------------------------------------------------ eklenti */}

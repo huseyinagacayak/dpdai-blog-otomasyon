@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 import { IconGlobe, IconPlus } from '@/components/icons';
 import { EmptyState, PageHeader, ScorePill, SiteBadge, fmtDate } from '@/components/ui';
 import { prisma } from '@/lib/db';
@@ -19,6 +21,7 @@ const QUALITY_LABEL: Record<string, string> = {
 };
 
 export default async function SitelerPage() {
+  const l = await getLocale();
   const sites = await prisma.site.findMany({
     orderBy: [{ status: 'asc' }, { name: 'asc' }],
     include: {
@@ -30,12 +33,12 @@ export default async function SitelerPage() {
   return (
     <>
       <PageHeader
-        title="Siteler"
-        subtitle={`${sites.length} site kayıtlı`}
+        title={t(l, 'Siteler')}
+        subtitle={`${sites.length} ${t(l, 'site kayıtlı')}`}
         actions={
           <Link href="/siteler/yeni" className="btn-primary">
             <IconPlus />
-            Yeni site
+            {t(l, 'Yeni site')}
           </Link>
         }
       />
@@ -43,11 +46,11 @@ export default async function SitelerPage() {
       {sites.length === 0 ? (
         <EmptyState
           icon={<IconGlobe className="size-5" />}
-          title="Henüz site eklenmedi"
-          hint="İlk WordPress sitenizi ekleyin. Kullanıcı adı ve uygulama şifresi yeterli; SEO metaları ve site denetimi için dpdai-bridge eklentisini de kurmanız önerilir."
+          title={t(l, 'Henüz site eklenmedi')}
+          hint={t(l, 'İlk WordPress sitenizi ekleyin. Kullanıcı adı ve uygulama şifresi yeterli; SEO metaları ve site denetimi için dpdai-bridge eklentisini de kurmanız önerilir.')}
           action={
             <Link href="/siteler/yeni" className="btn-primary mt-3">
-              Site ekle
+              {t(l, 'Site ekle')}
             </Link>
           }
         />

@@ -1,5 +1,7 @@
 import type { ArticleStatus } from '@prisma/client';
 import { AreaChart, BarList, CalendarHeatmap, ColumnChart, Donut } from '@/components/charts';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 import { IconActivity, IconCalendar, IconGlobe, IconSparkle } from '@/components/icons';
 import {
   ARTICLE_LABEL,
@@ -38,6 +40,7 @@ export default async function IstatistikPage({
   searchParams: Promise<{ gun?: string }>;
 }) {
   const sp = await searchParams;
+  const l = await getLocale();
   const days = RANGES.find((r) => String(r.days) === sp.gun)?.days ?? 30;
 
   const now = new Date();
@@ -247,7 +250,7 @@ export default async function IstatistikPage({
   return (
     <>
       <PageHeader
-        title="İstatistikler"
+        title={t(l, 'İstatistikler')}
         subtitle={`Son ${days} günün üretim, kalite ve maliyet görünümü`}
         actions={
           <div className="flex gap-1.5">

@@ -67,6 +67,16 @@ const EN: Record<string, string> = {
   'Yayında': 'Published',
   'Yayınlanıyor': 'Publishing',
   'Başarısız': 'Failed',
+  'Hata': 'Error',
+  // konu durumları
+  'Havuzda': 'In pool',
+  'Takvimde': 'Scheduled',
+  'Üretimde': 'Producing',
+  'Tamam': 'Done',
+  'Arşiv': 'Archived',
+  // site durumları
+  'Aktif': 'Active',
+  'Duraklatıldı': 'Paused',
 
   // --- özet / dashboard
   'Son 14 gün': 'Last 14 days',
@@ -112,6 +122,10 @@ const EN: Record<string, string> = {
     '— in most cases "Retry" is enough.',
 
   // --- siteler / sites
+  'İstatistikler': 'Statistics',
+  'kayıt gösteriliyor': 'records shown',
+  'site kayıtlı': 'sites registered',
+  'Site ekle': 'Add site',
   'Yeni site': 'New site',
   'Bağlantıyı test et': 'Test connection',
   'SEO denetimi': 'SEO audit',

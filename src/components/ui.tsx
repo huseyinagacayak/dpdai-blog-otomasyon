@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import type { ArticleStatus, SiteStatus, TopicStatus } from '@prisma/client';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 
 /* ------------------------------------------------------------------ durum */
 
@@ -29,11 +31,12 @@ const ARTICLE_TONE: Record<ArticleStatus, string> = {
   FAILED: 'pill-err',
 };
 
-export function ArticleBadge({ status }: { status: ArticleStatus }) {
+export async function ArticleBadge({ status }: { status: ArticleStatus }) {
+  const l = await getLocale();
   return (
     <span className={ARTICLE_TONE[status]}>
       <i className="pill-dot" />
-      {ARTICLE_LABEL[status]}
+      {t(l, ARTICLE_LABEL[status])}
     </span>
   );
 }
@@ -56,16 +59,18 @@ const TOPIC_TONE: Record<TopicStatus, string> = {
   ARCHIVED: 'pill-neutral',
 };
 
-export function TopicBadge({ status }: { status: TopicStatus }) {
+export async function TopicBadge({ status }: { status: TopicStatus }) {
+  const l = await getLocale();
   return (
     <span className={TOPIC_TONE[status]}>
       <i className="pill-dot" />
-      {TOPIC_LABEL[status]}
+      {t(l, TOPIC_LABEL[status])}
     </span>
   );
 }
 
-export function SiteBadge({ status }: { status: SiteStatus }) {
+export async function SiteBadge({ status }: { status: SiteStatus }) {
+  const l = await getLocale();
   const map: Record<SiteStatus, [string, string]> = {
     ACTIVE: ['Aktif', 'pill-ok'],
     PAUSED: ['Duraklatıldı', 'pill-warn'],
@@ -75,7 +80,7 @@ export function SiteBadge({ status }: { status: SiteStatus }) {
   return (
     <span className={tone}>
       <i className="pill-dot" />
-      {label}
+      {t(l, label)}
     </span>
   );
 }

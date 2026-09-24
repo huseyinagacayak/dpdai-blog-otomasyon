@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { getLocale } from '@/lib/locale';
+import { t } from '@/lib/i18n';
 import { ConflictBadge } from '@/components/ConflictBadge';
 import { IconPlus, IconRefresh, IconSearch, IconSparkle, IconTopics, IconTrash } from '@/components/icons';
 import { EmptyState, FilterChip, PageHeader, Panel, TopicBadge, fmtDate } from '@/components/ui';
@@ -55,10 +57,12 @@ export default async function KonularPage({
     await rescanConflicts(sp.site);
   }
 
+  const l = await getLocale();
+
   return (
     <>
       <PageHeader
-        title="Konu havuzu"
+        title={t(l, 'Konu havuzu')}
         subtitle={
           cakisan > 0
             ? `${havuzda} başlık sırada · ${cakisan} tanesinde çakışma uyarısı`
