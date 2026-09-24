@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { Alert, PageHeader, Panel } from '@/components/ui';
 import { prisma } from '@/lib/db';
 import { getPublishAdapter } from '@/lib/providers/publish';
+import { getLocale } from '@/lib/locale';
+import { t, type Locale } from '@/lib/i18n';
 import {
   completeMissingTranslations,
   getTranslationProgress,
@@ -25,7 +27,7 @@ const DIL_ADI: Record<string, string> = {
   es: 'İspanyolca',
   it: 'İtalyanca',
 };
-const dl = (c: string) => DIL_ADI[c] ?? c.toUpperCase();
+const dl = (loc: Locale, c: string) => t(loc, DIL_ADI[c] ?? c.toUpperCase());
 
 type Audit = {
   mode: string;
@@ -61,6 +63,7 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
   const tamamla = completeMissingTranslations.bind(null, site.id);
   const menuCevir = translateMenus.bind(null, site.id);
   const progress = await getTranslationProgress(site.id);
+  const loc = await getLocale();
 
   // Toplu ceviri maliyet tahmini (onay ekrani icin)
   const missingCount = (audit?.items ?? []).reduce((n, it) => n + (it.missing?.length ?? 0), 0);
@@ -70,34 +73,34 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
   return (
     <>
       <PageHeader
-        title="Çeviri denetimi"
+        title={t(loc, 'Çeviri denetimi')}
         subtitle={site.name}
         actions={
           <Link href={`/siteler/${site.id}`} className="btn">
-            ← Site
+            {t(loc, '← Site')}
           </Link>
         }
       />
 
       {hata && (
         <div className="mb-5">
-          <Alert tone="err">Denetim yapılamadı: {hata}</Alert>
+          <Alert tone="err">{t(loc, 'Denetim yapılamadı')}: {hata}</Alert>
         </div>
       )}
 
       <TranslationProgress total={progress.total} done={progress.done} />
 
       {audit && !audit.supported && (
-        <Panel title="Polylang gerekli">
+        <Panel title={t(loc, 'Polylang gerekli')}>
           <p className="mb-3 text-sm" style={{ color: 'var(--ink-3)' }}>
             {audit.message ??
-              'Sitede çok dil eklentisi bulunamadı. Çeviri denetimi Polylang gerektirir.'}
+              t(loc, 'Sitede çok dil eklentisi bulunamadı. Çeviri denetimi Polylang gerektirir.')}
           </p>
           <ol className="ml-4 list-decimal space-y-1 text-sm" style={{ color: 'var(--ink-2)' }}>
-            <li>WordPress → Eklentiler → <strong>Polylang</strong> kurun</li>
-            <li>Dilleri ekleyin (Türkçe varsayılan + İngilizce, Almanca, Fransızca, Arapça, Rusça)</li>
-            <li>Mevcut içeriğe dil atayın (hepsi Türkçe)</li>
-            <li>DPDAI Bridge <strong>1.4.0+</strong> kurulu olsun, site kartından bağlantıyı test edin</li>
+            <li>{t(loc, 'WordPress → Eklentiler → Polylang kurun')}</li>
+            <li>{t(loc, 'Dilleri ekleyin (Türkçe varsayılan + İngilizce, Almanca, Fransızca, Arapça, Rusça)')}</li>
+            <li>{t(loc, 'Mevcut içeriğe dil atayın (hepsi Türkçe)')}</li>
+            <li>{t(loc, 'DPDAI Bridge 1.4.0+ kurulu olsun, site kartından bağlantıyı test edin')}</li>
           </ol>
         </Panel>
       )}
@@ -105,7 +108,7 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
       {audit && audit.supported && audit.summary && (
         <div className="space-y-6">
           {/* --- kapsam --- */}
-          <Panel title={`Kapsam · ${audit.summary.total_groups} içerik grubu`}>
+          <Panel title={`${t(loc, 'Kapsam')} · ${audit.summary.total_groups} ${t(loc, 'içerik grubu')}`}>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {(audit.languages ?? [])
                 .filter((l) => l !== audit!.default)
@@ -121,7 +124,7 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
                       style={{ border: '1px solid var(--line)', background: 'var(--surface)' }}
                     >
                       <div className="mb-1.5 flex items-center justify-between">
-                        <span className="text-sm font-medium">{dl(l)}</span>
+                        <span className="text-sm font-medium">{dl(loc, l)}</span>
                         <span className="text-xs tabular-nums" style={{ color: 'var(--ink-3)' }}>
                           {have}/{total}
                         </span>
@@ -134,7 +137,7 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
                       </div>
                       {miss > 0 && (
                         <div className="mt-1.5 text-xs" style={{ color: 'var(--warn)' }}>
-                          {miss} eksik çeviri
+                          {miss} {t(loc, 'eksik çeviri')}
                         </div>
                       )}
                     </div>
@@ -145,14 +148,14 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
             <div className="mt-5 flex flex-wrap items-start gap-3">
               <form action={tamamla}>
                 <ConfirmButton
-                  confirmText={`${missingCount} çeviri (~$${estUsd}) kuyruğa alınacak.`}
+                  confirmText={t(loc, '{n} çeviri (~${x}) kuyruğa alınacak.').replace('{n}', String(missingCount)).replace('${x}', `$${estUsd}`)}
                 >
-                  Eksik çevirileri tamamla
+                  {t(loc, 'Eksik çevirileri tamamla')}
                 </ConfirmButton>
               </form>
               <form action={menuCevir}>
                 <SubmitButton className="btn" pendingText="Menüler çevriliyor…">
-                  Menüleri çevir
+                  {t(loc, 'Menüleri çevir')}
                 </SubmitButton>
               </form>
             </div>
@@ -166,14 +169,14 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
 
           {/* --- bozuk/yarim ceviriler --- */}
           {audit.problems && audit.problems.length > 0 && (
-            <Panel title={`Bozuk / yarım çeviriler · ${audit.problems.length}`}>
+            <Panel title={`${t(loc, 'Bozuk / yarım çeviriler')} · ${audit.problems.length}`}>
               <div className="table-wrap">
                 <table className="tbl">
                   <thead>
                     <tr>
-                      <th>Başlık</th>
-                      <th>Dil</th>
-                      <th>Sorun</th>
+                      <th>{t(loc, 'Başlık')}</th>
+                      <th>{t(loc, 'Dil')}</th>
+                      <th>{t(loc, 'Sorun')}</th>
                       <th />
                     </tr>
                   </thead>
@@ -181,13 +184,13 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
                     {audit.problems.slice(0, 100).map((p) => (
                       <tr key={p.post_id}>
                         <td className="max-w-md truncate">{p.title}</td>
-                        <td className="text-xs whitespace-nowrap">{dl(p.lang)}</td>
+                        <td className="text-xs whitespace-nowrap">{dl(loc, p.lang)}</td>
                         <td className="text-xs" style={{ color: 'var(--warn)' }}>
                           {p.reason} (%{Math.round(p.ratio * 100)})
                         </td>
                         <td className="text-right">
                           <a href={p.url} target="_blank" rel="noreferrer noopener" className="btn-ghost btn-sm">
-                            aç
+                            {t(loc, 'aç')}
                           </a>
                         </td>
                       </tr>
@@ -199,20 +202,20 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
           )}
 
           {/* --- eksik ceviriler --- */}
-          <Panel title={`Eksik çeviriler · ${audit.items?.length ?? 0} içerik`}>
+          <Panel title={`${t(loc, 'Eksik çeviriler')} · ${audit.items?.length ?? 0} ${t(loc, 'içerik')}`}>
             {!audit.items || audit.items.length === 0 ? (
               <p className="text-sm" style={{ color: 'var(--ink-3)' }}>
-                Eksik çeviri yok — tüm içerik tüm dillerde mevcut. 🎉
+                {t(loc, 'Eksik çeviri yok — tüm içerik tüm dillerde mevcut. 🎉')}
               </p>
             ) : (
               <div className="table-wrap">
                 <table className="tbl">
                   <thead>
                     <tr>
-                      <th>Başlık</th>
-                      <th>Tür</th>
-                      <th>Kaynak</th>
-                      <th>Eksik diller</th>
+                      <th>{t(loc, 'Başlık')}</th>
+                      <th>{t(loc, 'Tür')}</th>
+                      <th>{t(loc, 'Kaynak')}</th>
+                      <th>{t(loc, 'Eksik diller')}</th>
                       <th />
                     </tr>
                   </thead>
@@ -223,7 +226,7 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
                         <td className="text-xs whitespace-nowrap" style={{ color: 'var(--ink-3)' }}>
                           {it.type}
                         </td>
-                        <td className="text-xs whitespace-nowrap">{dl(it.source_lang)}</td>
+                        <td className="text-xs whitespace-nowrap">{dl(loc, it.source_lang)}</td>
                         <td>
                           <div className="flex flex-wrap gap-1">
                             {it.missing.map((m) => (
@@ -239,7 +242,7 @@ export default async function CeviriPage({ params }: { params: Promise<{ id: str
                         </td>
                         <td className="text-right">
                           <a href={it.url} target="_blank" rel="noreferrer noopener" className="btn-ghost btn-sm">
-                            aç
+                            {t(loc, 'aç')}
                           </a>
                         </td>
                       </tr>

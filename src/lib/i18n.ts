@@ -161,6 +161,33 @@ const EN: Record<string, string> = {
   'Çeviriler yapılıyor': 'Translations in progress',
   'Çeviriler tamamlandı': 'Translations complete',
   'Polylang gerekli': 'Polylang required',
+  '← Site': '← Site',
+  'Denetim yapılamadı': 'Audit failed',
+  'Sitede çok dil eklentisi bulunamadı. Çeviri denetimi Polylang gerektirir.':
+    'No multilingual plugin found on the site. Translation audit requires Polylang.',
+  'WordPress → Eklentiler → Polylang kurun': 'WordPress → Plugins → install Polylang',
+  'Dilleri ekleyin (Türkçe varsayılan + İngilizce, Almanca, Fransızca, Arapça, Rusça)':
+    'Add languages (Turkish default + English, German, French, Arabic, Russian)',
+  'Mevcut içeriğe dil atayın (hepsi Türkçe)': 'Assign a language to existing content (all Turkish)',
+  'DPDAI Bridge 1.4.0+ kurulu olsun, site kartından bağlantıyı test edin':
+    'Install DPDAI Bridge 1.4.0+, then test the connection from the site card',
+  'içerik grubu': 'content groups',
+  'eksik çeviri': 'missing translation(s)',
+  '{n} çeviri (~${x}) kuyruğa alınacak.': '{n} translations (~${x}) will be queued.',
+  'içerik': 'items',
+  'Eksik çeviri yok — tüm içerik tüm dillerde mevcut. 🎉':
+    'No missing translations — all content exists in every language. 🎉',
+  'Sorun': 'Issue',
+  'Tür': 'Type',
+  'Kaynak': 'Source',
+  'Eksik diller': 'Missing languages',
+  // dil adları / language names
+  'Almanca': 'German',
+  'Fransızca': 'French',
+  'Arapça': 'Arabic',
+  'Rusça': 'Russian',
+  'İspanyolca': 'Spanish',
+  'İtalyanca': 'Italian',
 
   // --- ayarlar / settings
   'Metin sağlayıcıları': 'Text providers',
